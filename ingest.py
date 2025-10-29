@@ -13,7 +13,7 @@ import config
 logger = logging.getLogger(__name__)
 
 
-def load_and_standardize(data_dir: str) -> pl.DataFrame | None:
+def load_and_standardise(data_dir: str) -> pl.DataFrame | None:
     """
     Load and standardise spending data from all departments.
 
