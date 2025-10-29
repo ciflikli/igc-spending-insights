@@ -264,6 +264,12 @@ LOGGING_CONFIG = {
     'handlers': ['file', 'console']
 }
 
+# LLM configuration
+
+DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
+LLM_MAX_TOKENS = 1500
+LLM_TEMPERATURE = 0.2
+
 # Validation
 
 def validate_config():
@@ -274,7 +280,7 @@ def validate_config():
             f"CATEGORIES: {CATEGORIES}\n"
             f"CATEGORY_KEYWORDS: {list(CATEGORY_KEYWORDS.keys())}"
         )
-    
+
     for dept, mappings in DIRECT_EXPENSE_TYPE_MAPPING.items():
         invalid = set(mappings.values()) - set(CATEGORIES)
         if invalid:
@@ -282,7 +288,7 @@ def validate_config():
                 f"{dept} has invalid categories in direct mapping: {invalid}\n"
                 f"Valid categories: {CATEGORIES}"
             )
-    
+
     required_depts = {'HMRC', 'Home Office', 'DfT'}
     missing = required_depts - set(ANOMALY_THRESHOLDS['high_payment'].keys())
     if missing:

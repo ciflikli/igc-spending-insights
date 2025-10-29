@@ -13,13 +13,13 @@ import config
 logger = logging.getLogger(__name__)
 
 
-def load_and_standardize(data_dir: str) -> pl.DataFrame:
+def load_and_standardize(data_dir: str) -> pl.DataFrame | None:
     """
     Load and standardise spending data from all departments.
-    
+
     Args:
         data_dir: Path to directory containing department folders
-        
+
     Returns:
         DataFrame with standardised schema containing:
         - department: str (normalised, e.g., "HMRC", "Home Office", "DfT")
@@ -34,6 +34,8 @@ def load_and_standardize(data_dir: str) -> pl.DataFrame:
         - transaction_number: str
         - postcode: str (may be empty)
         - source_file: str (filename)
+
+        Returns None if no data could be loaded.
     """
     data_path = Path(data_dir)
     all_dfs = []

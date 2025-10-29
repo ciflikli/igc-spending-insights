@@ -9,11 +9,12 @@ import logging
 import os
 
 import polars as pl
-from anthropic import Anthropic
+from anthropic import Anthropic, APIError
+
+import config
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
 TOP_N_ITEMS = 5  # Number of top items to include in summaries
 
 
@@ -228,7 +229,7 @@ def generate_summary(
     if not api_key:
         raise RuntimeError("ANTHROPIC_API_KEY must be set in .env file to generate LLM summaries.")
 
-    model = os.getenv("ANTHROPIC_MODEL", DEFAULT_MODEL)
+    model = os.getenv("ANTHROPIC_MODEL", config.DEFAULT_MODEL)
     client = Anthropic(api_key=api_key)
 
     payload = json.dumps(stats, indent=2)
@@ -244,18 +245,22 @@ def generate_summary(
 
     logger.info("Requesting LLM-generated summary via %s", model)
 
-    message = client.messages.create(
-        model=model,
-        max_tokens=1500,
-        temperature=0.2,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                ],
-            },
-        ],
-    )
+    try:
+        message = client.messages.create(
+            model=model,
+            max_tokens=config.LLM_MAX_TOKENS,
+            temperature=config.LLM_TEMPERATURE,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                    ],
+                },
+            ],
+        )
+    except APIError as e:
+        logger.error("API call failed: %s", e, exc_info=True)
+        raise RuntimeError(f"Failed to generate LLM summary: {e}") from e
 
     return message.content[0].text.strip()
